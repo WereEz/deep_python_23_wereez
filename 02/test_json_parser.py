@@ -18,10 +18,11 @@ def test_parse_json_how_much_callback(mock_json_data, mock_callback):
     json_str = mock_json_data
     required_fields = ["key1", "key2"]
     keywords = ["word2"]
-    expected_result = 2
+    expected_calls = [mock.call.callback("key1", "word2"),
+                      mock.call.callback("key2", "word2")]
     keyword_callback = mock_callback.callback
     parse_json(json_str, required_fields, keywords, keyword_callback)
-    assert len(keyword_callback.mock_calls) == expected_result
+    assert expected_calls == mock_callback.mock_calls
 
 
 def test_parse_json_case_sensitive_required_fields(mock_json_data,
@@ -41,7 +42,7 @@ def test_parse_json_not_case_sensitive_keyword(mock_json_data,
     required_fields = ["key1"]
     keywords = ["wOrD2"]
     keyword_callback = mock_callback.callback
-    expected_calls = [mock.call.callback("word2")]
+    expected_calls = [mock.call.callback("key1", "word2")]
     parse_json(json_str, required_fields, keywords, keyword_callback)
     assert expected_calls == mock_callback.mock_calls
 
@@ -53,7 +54,8 @@ def test_parse_json_two_different_words_in_one_required_fields(
     keywords = ["word2", "word3"]
     keyword_callback = mock_callback.callback
 
-    expected_calls = [mock.call.callback('word2'), mock.call.callback('word3')]
+    expected_calls = [mock.call.callback("key2", 'word2'),
+                      mock.call.callback("key2", 'word3')]
 
     parse_json(json_str, required_fields, keywords, keyword_callback)
     assert expected_calls == mock_callback.mock_calls
@@ -65,7 +67,8 @@ def test_parse_json_word_twice_in_one_line(mock_json_data, mock_callback):
     keywords = ["ёж"]
     keyword_callback = mock_callback.callback
 
-    expected_calls = [mock.call.callback('ёж'), mock.call.callback('ёж')]
+    expected_calls = [mock.call.callback("key1", 'ёж'),
+                      mock.call.callback("key1", 'ёж')]
 
     parse_json(json_str, required_fields, keywords, keyword_callback)
     assert expected_calls == mock_callback.mock_calls
