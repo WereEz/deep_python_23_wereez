@@ -1,4 +1,4 @@
-import io
+import os
 import pytest
 from read_generator import search_words_in_file
 
@@ -8,7 +8,11 @@ def file_content_one_line():
     content_one_line = (
         "кактусовый"
     )
-    return io.StringIO(content_one_line)
+    with open('temp.txt', 'w', encoding='utf-8') as temp_file:
+        temp_file.write(content_one_line)
+
+    # Открываем созданный файл и возвращаем его как объект TextIOWrapper
+    return open('temp.txt', 'r', encoding='utf-8')
 
 
 @pytest.fixture
@@ -20,7 +24,11 @@ def file_content():
         "рак за руку Греку - цап!\n"
         "Ёжик"
     )
-    return io.StringIO(content)
+    with open('temp.txt', 'w', encoding='utf-8') as temp_file:
+        temp_file.write(content)
+
+    # Открываем созданный файл и возвращаем его как объект TextIOWrapper
+    return open('temp.txt', 'r', encoding='utf-8')
 
 
 @pytest.fixture
@@ -37,6 +45,15 @@ def file_name(tmp_path):
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(content)
     return str(file_path)
+
+
+def delete_file(file):
+    # Получаем путь к файлу из файлового объекта
+    file_path = file.name
+
+    # Удаляем файл, если он существует
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 
 @pytest.fixture
@@ -71,6 +88,7 @@ def test_read_generator_nothing_found(file_name):
 def test_read_generator_with_io_file(file_content, words, expected_answer):
     result = list(search_words_in_file(file_content, words))
     assert result == expected_answer
+    delete_file(file_content)
 
 
 def test_read_generator_incorrect_input():
@@ -100,15 +118,17 @@ def test_read_generator_multiple_words_in_line(file_name):
     assert result == expected_result
 
 
-def test_read_generator_partial_word_match(file_content_one_line, file_name):
+def test_read_generator_partial_word_match(file_content_one_line):
     words = ["кактус"]
     result = list(search_words_in_file(file_content_one_line, words))
     assert result == []
+    delete_file(file_content_one_line)
 
 
 def test_read_generator_whole_word_match_in_file(
-        file_content_one_line, file_name):
+        file_content_one_line):
     words = ["кактусовый"]
     expected_result = ["кактусовый"]
     result = list(search_words_in_file(file_content_one_line, words))
     assert result == expected_result
+    delete_file(file_content_one_line)
