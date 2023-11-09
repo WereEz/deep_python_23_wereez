@@ -1,10 +1,11 @@
 import argparse
 import os
 import sys
-import pytest
 import asyncio
+from unittest.mock import AsyncMock, patch
+import pytest
 import fetcher
-from unittest.mock import AsyncMock, Mock, patch
+
 
 print_lock = asyncio.Lock()
 
@@ -14,7 +15,6 @@ def delete_file(file_path):
         os.remove(file_path)
 
 
-@pytest.fixture
 def file_content():
     content = (
         "https://stepik.org/course/128891/promo\n"
@@ -37,14 +37,15 @@ def test_get_args():
         fetcher.get_args()
 
 
-def test_generator_url(file_content):
-    PATH = "temp.txt"
+def test_generator_url():
+    file_content()
+    path = "temp.txt"
     expected_answer = [
         "https://stepik.org/course/128891/promo",
         "https://stepik.org/course/92012/promo"
     ]
-    assert list(fetcher.generator_url(PATH)) == expected_answer
-    delete_file(PATH)
+    assert list(fetcher.generator_url(path)) == expected_answer
+    delete_file(path)
 
 
 @pytest.mark.asyncio
