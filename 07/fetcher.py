@@ -39,13 +39,15 @@ async def fetch_worker(que, counter, print_lock):
         url = await que.get()
         try:
             await fetch_url(url, counter, print_lock)
+        except Exception:
+            print(f"{url} не отработал")
         finally:
             que.task_done()
 
 
 async def fetch_several_urls(nums_coroutines, path):
     t_1 = time.time()
-    que = asyncio.Queue()
+    que = asyncio.Queue(maxsize=nums_coroutines)
     counter = {'completed': 0}
     print_lock = asyncio.Lock()
     workers = [
@@ -61,6 +63,6 @@ async def fetch_several_urls(nums_coroutines, path):
     print(t_2 - t_1)
 
 if __name__ == "__main__":
-    coroutines, file_path = get_args()
+    coroutines, file_path = 10, "07/urls.txt"
     loop = asyncio.get_event_loop()
     loop.run_until_complete(fetch_several_urls(coroutines, file_path))
