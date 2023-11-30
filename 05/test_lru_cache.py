@@ -47,3 +47,25 @@ def test_eviction_of_old_values():
     assert small_cache.get("k2") == "2"
     assert small_cache.get("k4") == "4"
     assert len(small_cache.dct) == 2
+
+def test_with_limig_one():
+    small_cache = LRUCache(1)
+    small_cache.set("k1", "1")
+    assert small_cache.get("k1") == "1"
+    assert len(small_cache.dct) == 1
+    small_cache.set("k2", "2")
+    assert len(small_cache.dct) == 1
+    assert small_cache.get("k1") is None
+    assert small_cache.get("k2") == "2"
+
+def test_pop_not_change():
+    cache = LRUCache(2)
+    cache.set("k1", "val1")
+    cache.set("k2", "val2")
+    assert cache.get("k1") == "val1"
+    assert cache.get("k2") == "val2"
+    cache.set("k1", "1")
+    cache.set("k3", "val3")
+    assert cache.get("k3") == "val3"
+    assert cache.get("k2") is None
+    assert cache.get("k1") == "1"
